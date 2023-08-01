@@ -17,44 +17,41 @@ package cmd
 
 import (
 	"fmt"
-
 	"ocidist/pkg/api"
 
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: doList,
+// reposCmd represents the repos command
+var reposCmd = &cobra.Command{
+	Use:   "repos [URL]",
+	Args:  cobra.MinimumNArgs(1),
+	Short: "Print a list of repositories available at URL",
+	Long: `
+$ ocidist repos ocidist://localhost:5000
+`,
+	RunE: doRepos,
 }
 
-func doList(cmd *cobra.Command, args []string) {
+func doRepos(cmd *cobra.Command, args []string) error {
+	rawURL := args[0]
 
-	url := cmd.Flag("url").Value.String()
-	if len(url) == 0 {
-		panic("Empty URL value")
-	}
-
-	repos, err := api.GetRepositories(url)
+	ociApi, err := api.NewOCIAPI(rawURL)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fmt.Printf("URL=%s Repositories:\n", url)
+	repos, err := ociApi.GetRepositories()
+	if err != nil {
+		return err
+	}
+
 	for _, repo := range repos {
 		fmt.Printf(" %s\n", repo)
 	}
+	return nil
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
-	listCmd.PersistentFlags().StringP("url", "u", "", "url to list OCI images")
+	rootCmd.AddCommand(reposCmd)
 }
