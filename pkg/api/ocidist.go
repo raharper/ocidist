@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 
-	"github.com/apex/log"
 	"github.com/bloodorangeio/reggie"
 	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -54,6 +55,10 @@ func (odr *OCIDistRepo) RepoTag() string {
 		return toks[len(toks)-1]
 	}
 	return ""
+}
+
+func (odr *OCIDistRepo) SourceURL() string {
+	return filepath.Join(odr.url.Host, odr.RepoPath())
 }
 
 func (odr *OCIDistRepo) GetRepoTagList() (*dspec.TagList, error) {

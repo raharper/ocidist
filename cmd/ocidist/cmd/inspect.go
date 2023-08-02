@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"ocidist/pkg/api"
@@ -86,10 +88,15 @@ func doInspect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	manifest, _, err := ociApi.GetManifest()
+	manifest, manifestBytes, err := ociApi.GetManifest()
 	if err != nil {
 		return err
 	}
+
+	// compute manifest digest
+	hash := sha256.New()
+	hash.Write(manifestBytes)
+	manifestDigest := digest.Digest(fmt.Sprintf("sha256:%s", hex.EncodeToString(hash.Sum(nil))))
 
 	img, err := ociApi.GetImage(&manifest.Config)
 	if err != nil {
@@ -107,8 +114,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 	}
 
 	output := InspectOutput{
-		Name:         "", // ociApi.GetName() -> host+path (trimming tag)
-		Digest:       "digestMe",
+		Digest:       manifestDigest,
 		RepoTags:     tagList.Tags,
 		Created:      img.Created,
 		Labels:       img.Config.Labels,
@@ -116,6 +122,10 @@ func doInspect(cmd *cobra.Command, args []string) error {
 		Os:           img.OS,
 		Layers:       layers,
 		Env:          img.Config.Env,
+	}
+
+	if ociApi.Type() == api.OCIDistRepoType {
+		output.Name = ociApi.SourceURL()
 	}
 
 	outputBytes, err := json.MarshalIndent(output, "", "    ")

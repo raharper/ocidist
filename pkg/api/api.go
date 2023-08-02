@@ -25,6 +25,7 @@ type OCIAPI interface {
 	GetManifest() (*ispec.Manifest, []byte, error)
 	GetImage(*ispec.Descriptor) (*ispec.Image, error)
 
+	SourceURL() string
 	RepoPath() string
 	RepoTag() string
 }
