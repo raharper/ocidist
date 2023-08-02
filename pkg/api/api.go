@@ -22,13 +22,18 @@ type OCIAPI interface {
 	GetRepositories() ([]string, error)
 
 	GetRepoTagList() (*dspec.TagList, error)
-	GetOCIManifest(string) (*ispec.Manifest, error)
+	GetManifest() (*ispec.Manifest, []byte, error)
+	GetImage(*ispec.Descriptor) (*ispec.Image, error)
 
 	RepoPath() string
-	// BaseURL() string
+	RepoTag() string
 }
 
-func NewOCIAPI(rawURL string) (OCIAPI, error) {
+type OCIAPIConfig struct {
+	TLSVerify bool
+}
+
+func NewOCIAPI(rawURL string, config *OCIAPIConfig) (OCIAPI, error) {
 
 	url, err := url.Parse(rawURL)
 	if err != nil {
@@ -37,9 +42,9 @@ func NewOCIAPI(rawURL string) (OCIAPI, error) {
 
 	switch url.Scheme {
 	case "docker", "https", "http", "ocidist":
-		return NewOCIDistRepo(url)
+		return NewOCIDistRepo(url, config)
 	case "oci":
-		return NewOCIDirRepo(url)
+		return NewOCIDirRepo(url, config)
 	}
 
 	return nil, fmt.Errorf("Unknown URL scheme '%s' in url '%s'", url.Scheme, rawURL)

@@ -16,36 +16,121 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"ocidist/pkg/api"
+	"time"
 
+	"github.com/containers/image/v5/types"
+	digest "github.com/opencontainers/go-digest"
 	"github.com/spf13/cobra"
 )
 
 // inspectCmd represents the inspect command
 var inspectCmd = &cobra.Command{
-	Use:   "inspect",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "inspect <URL>",
+	Args:  cobra.MinimumNArgs(1),
+	Short: "print information about an OCI Image at URL",
+	Long: `
+$ ocidist inspect ocidist://localhost:5000/myrepo/myimage:v2.1
+{
+  "Name": "localhost:5000/myrepo/myimage",
+  "Digest": "sha256:xxx",
+  "RepoTags": [
+    "v2.1"
+  ],
+  ...
+}`,
+	RunE: doInspect,
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("inspect called")
-	},
+// github.com/containers/skopeo/cmd/skopeo/inspect/output.go:Output
+type InspectOutput struct {
+	Name          string `json:",omitempty"`
+	Tag           string `json:",omitempty"`
+	Digest        digest.Digest
+	RepoTags      []string
+	Created       *time.Time
+	DockerVersion string
+	Labels        map[string]string
+	Architecture  string
+	Os            string
+	Layers        []string
+	LayersData    []types.ImageInspectLayer `json:",omitempty"`
+	Env           []string
+}
+
+func doInspect(cmd *cobra.Command, args []string) error {
+	rawURL := args[0]
+
+	/*
+		outputConfig, err := cmd.Flags().GetBool("config")
+		if err != nil {
+			return err
+		}
+
+		rawOutput, err := cmd.Flags().GetBool("raw")
+		if err != nil {
+			return err
+		}
+	*/
+
+	tlsVerify, err := cmd.Flags().GetBool("tls-verify")
+	if err != nil {
+		return err
+	}
+
+	apiConfig := &api.OCIAPIConfig{TLSVerify: tlsVerify}
+	ociApi, err := api.NewOCIAPI(rawURL, apiConfig)
+	if err != nil {
+		return err
+	}
+
+	manifest, _, err := ociApi.GetManifest()
+	if err != nil {
+		return err
+	}
+
+	img, err := ociApi.GetImage(&manifest.Config)
+	if err != nil {
+		return err
+	}
+
+	tagList, err := ociApi.GetRepoTagList()
+	if err != nil {
+		return err
+	}
+
+	var layers []string
+	for _, desc := range manifest.Layers {
+		layers = append(layers, string(desc.Digest))
+	}
+
+	output := InspectOutput{
+		Name:         "", // ociApi.GetName() -> host+path (trimming tag)
+		Digest:       "digestMe",
+		RepoTags:     tagList.Tags,
+		Created:      img.Created,
+		Labels:       img.Config.Labels,
+		Architecture: img.Architecture,
+		Os:           img.OS,
+		Layers:       layers,
+		Env:          img.Config.Env,
+	}
+
+	outputBytes, err := json.MarshalIndent(output, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", outputBytes)
+
+	return nil
 }
 
 func init() {
 	rootCmd.AddCommand(inspectCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// inspectCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// inspectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	inspectCmd.PersistentFlags().BoolP("config", "c", false, "output configuration")
+	inspectCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
+	inspectCmd.PersistentFlags().BoolP("raw", "r", false, "output raw manifest or configuration")
 }

@@ -36,7 +36,13 @@ $ ocidist repos ocidist://localhost:5000
 func doRepos(cmd *cobra.Command, args []string) error {
 	rawURL := args[0]
 
-	ociApi, err := api.NewOCIAPI(rawURL)
+	tlsVerify, err := cmd.Flags().GetBool("tls-verify")
+	if err != nil {
+		return err
+	}
+
+	config := &api.OCIAPIConfig{TLSVerify: tlsVerify}
+	ociApi, err := api.NewOCIAPI(rawURL, config)
 	if err != nil {
 		return err
 	}
@@ -54,4 +60,5 @@ func doRepos(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(reposCmd)
+	reposCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
 }
