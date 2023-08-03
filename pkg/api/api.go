@@ -3,6 +3,9 @@ package api
 import (
 	"fmt"
 	"net/url"
+	"os"
+
+	"ocidist/pkg/image"
 
 	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -25,6 +28,7 @@ type OCIAPI interface {
 	GetManifest() (*ispec.Manifest, []byte, error)
 	GetImage(*ispec.Descriptor) (*ispec.Image, error)
 
+	ImageName() string
 	SourceURL() string
 	RepoPath() string
 	RepoTag() string
@@ -49,4 +53,47 @@ func NewOCIAPI(rawURL string, config *OCIAPIConfig) (OCIAPI, error) {
 	}
 
 	return nil, fmt.Errorf("Unknown URL scheme '%s' in url '%s'", url.Scheme, rawURL)
+}
+
+func ImageCopy(src, dest string, opts image.ImageCopyOpts) error {
+
+	if opts.Src == "" {
+		srcURL, err := url.Parse(src)
+		if err != nil {
+			return fmt.Errorf("Failed to parse source url '%s': %s", src, err)
+		}
+
+		opts.Src = srcURL.String()
+		switch srcURL.Scheme {
+		case "ocidist", "docker", "oci":
+		default:
+			return fmt.Errorf("source url has unsupported scheme '%s', must be 'docker', 'ocidist', or 'oci'", srcURL.Scheme)
+		}
+	}
+
+	if opts.Dest == "" {
+		destURL, err := url.Parse(dest)
+		if err != nil {
+			return fmt.Errorf("Failed to parse dest url '%s': %s", dest, err)
+		}
+
+		opts.Dest = destURL.String()
+		switch destURL.Scheme {
+		case "ocidist":
+			opts.Dest = fmt.Sprintf("docker://%s", destURL.Path)
+		case "docker", "oci":
+		default:
+			return fmt.Errorf("destination url has unsupported scheme '%s', must be 'docker' or 'oci'", destURL.Scheme)
+		}
+	}
+
+	if opts.Progress == nil {
+		opts.Progress = os.Stdout
+	}
+
+	if err := image.ImageCopy(opts); err != nil {
+		return fmt.Errorf("failed to copy image '%s' to '%s': %s", opts.Src, opts.Dest, err)
+	}
+
+	return nil
 }

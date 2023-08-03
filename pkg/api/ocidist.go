@@ -58,6 +58,10 @@ func (odr *OCIDistRepo) RepoTag() string {
 }
 
 func (odr *OCIDistRepo) SourceURL() string {
+	return odr.url.String()
+}
+
+func (odr *OCIDistRepo) ImageName() string {
 	return filepath.Join(odr.url.Host, odr.RepoPath())
 }
 

@@ -125,7 +125,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 	}
 
 	if ociApi.Type() == api.OCIDistRepoType {
-		output.Name = ociApi.SourceURL()
+		output.Name = ociApi.ImageName()
 	}
 
 	outputBytes, err := json.MarshalIndent(output, "", "    ")

@@ -58,7 +58,7 @@ func (odr *OCIDirRepo) ImageName() string {
 }
 
 func (odr *OCIDirRepo) SourceURL() string {
-	return filepath.Join(odr.url.Host, odr.url.Path)
+	return odr.url.String()
 }
 
 func (odr *OCIDirRepo) RepoTag() string {
