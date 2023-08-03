@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"os"
 
-	"ocidist/pkg/image"
+	"github.com/raharper/ocidist/pkg/image"
 
 	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"

@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"ocidist/pkg/api"
-	"ocidist/pkg/image"
+	"github.com/raharper/ocidist/pkg/api"
+	"github.com/raharper/ocidist/pkg/image"
 
 	"github.com/spf13/cobra"
 )

@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "ocidist/cmd/ocidist/cmd"
+import "github.com/raharper/ocidist/cmd/ocidist/cmd"
 
 func main() {
 	cmd.Execute()

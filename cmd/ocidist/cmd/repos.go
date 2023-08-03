@@ -17,7 +17,8 @@ package cmd
 
 import (
 	"fmt"
-	"ocidist/pkg/api"
+
+	"github.com/raharper/ocidist/pkg/api"
 
 	"github.com/spf13/cobra"
 )

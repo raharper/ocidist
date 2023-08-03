@@ -20,8 +20,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"ocidist/pkg/api"
 	"time"
+
+	"github.com/raharper/ocidist/pkg/api"
 
 	"github.com/containers/image/v5/types"
 	digest "github.com/opencontainers/go-digest"
