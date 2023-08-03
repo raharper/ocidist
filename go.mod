@@ -1,4 +1,4 @@
-module ocidist
+module github.com/raharper/ocidist
 
 go 1.20
 
