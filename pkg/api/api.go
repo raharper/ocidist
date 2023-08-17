@@ -27,6 +27,8 @@ type OCIAPI interface {
 	GetRepoTagList() (*dspec.TagList, error)
 	GetManifest() (*ispec.Manifest, []byte, error)
 	GetImage(*ispec.Descriptor) (*ispec.Image, error)
+	GetReferrers(*ispec.Descriptor) (*ispec.Index, error)
+	GetBlob(*ispec.Descriptor) ([]byte, error)
 
 	ImageName() string
 	SourceURL() string
