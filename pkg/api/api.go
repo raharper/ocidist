@@ -6,39 +6,11 @@ import (
 	"os"
 
 	"github.com/raharper/ocidist/pkg/image"
-
-	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/raharper/ocidist/pkg/noci"
+	"github.com/raharper/ocidist/pkg/types"
 )
 
-type OCIRepoType string
-
-const (
-	OCIDirRepoType  OCIRepoType = "oci"
-	OCIDistRepoType OCIRepoType = "ocidist"
-)
-
-type OCIAPI interface {
-	Type() OCIRepoType
-
-	GetRepoTags() ([]string, error)
-	GetRepositories() ([]string, error)
-
-	GetRepoTagList() (*dspec.TagList, error)
-	GetManifest() (*ispec.Manifest, []byte, error)
-	GetImage(*ispec.Descriptor) (*ispec.Image, error)
-
-	ImageName() string
-	SourceURL() string
-	RepoPath() string
-	RepoTag() string
-}
-
-type OCIAPIConfig struct {
-	TLSVerify bool
-}
-
-func NewOCIAPI(rawURL string, config *OCIAPIConfig) (OCIAPI, error) {
+func NewOCIAPI(rawURL string, config *types.OCIAPIConfig) (types.OCIAPI, error) {
 
 	url, err := url.Parse(rawURL)
 	if err != nil {
@@ -50,6 +22,8 @@ func NewOCIAPI(rawURL string, config *OCIAPIConfig) (OCIAPI, error) {
 		return NewOCIDistRepo(url, config)
 	case "oci":
 		return NewOCIDirRepo(url, config)
+	case "noci":
+		return noci.NewRepo(url, config)
 	}
 
 	return nil, fmt.Errorf("Unknown URL scheme '%s' in url '%s'", url.Scheme, rawURL)

@@ -15,6 +15,7 @@ import (
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/opencontainers/umoci"
 	"github.com/pkg/errors"
+	"github.com/raharper/ocidist/pkg/noci"
 )
 
 var urlSchemes map[string]func(string) (types.ImageReference, error)
@@ -33,6 +34,7 @@ func init() {
 	RegisterURLScheme("ocidist", docker.ParseReference)
 	RegisterURLScheme("docker", docker.ParseReference)
 	RegisterURLScheme("docker-daemon", daemon.ParseReference)
+	RegisterURLScheme("noci", noci.ParseReference)
 }
 
 func localRefParser(ref string) (types.ImageReference, error) {

@@ -23,8 +23,9 @@ import (
 	"time"
 
 	"github.com/raharper/ocidist/pkg/api"
+	"github.com/raharper/ocidist/pkg/types"
 
-	"github.com/containers/image/v5/types"
+	itypes "github.com/containers/image/v5/types"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/spf13/cobra"
 )
@@ -59,7 +60,7 @@ type InspectOutput struct {
 	Architecture  string
 	Os            string
 	Layers        []string
-	LayersData    []types.ImageInspectLayer `json:",omitempty"`
+	LayersData    []itypes.ImageInspectLayer `json:",omitempty"`
 	Env           []string
 }
 
@@ -83,7 +84,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	apiConfig := &api.OCIAPIConfig{TLSVerify: tlsVerify}
+	apiConfig := &types.OCIAPIConfig{TLSVerify: tlsVerify}
 	ociApi, err := api.NewOCIAPI(rawURL, apiConfig)
 	if err != nil {
 		return err
@@ -125,7 +126,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 		Env:          img.Config.Env,
 	}
 
-	if ociApi.Type() == api.OCIDistRepoType {
+	if ociApi.Type() == types.OCIDistRepoType {
 		output.Name = ociApi.ImageName()
 	}
 

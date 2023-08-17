@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/raharper/ocidist/pkg/types"
+
 	"github.com/bloodorangeio/reggie"
 	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -20,15 +22,15 @@ const (
 
 type OCIDistRepo struct {
 	url    *url.URL
-	config *OCIAPIConfig
+	config *types.OCIAPIConfig
 	// TODO add client
 }
 
-func (odr *OCIDistRepo) Type() OCIRepoType {
-	return OCIDistRepoType
+func (odr *OCIDistRepo) Type() types.OCIRepoType {
+	return types.OCIDistRepoType
 }
 
-func NewOCIDistRepo(url *url.URL, config *OCIAPIConfig) (*OCIDistRepo, error) {
+func NewOCIDistRepo(url *url.URL, config *types.OCIAPIConfig) (*OCIDistRepo, error) {
 	return &OCIDistRepo{url: url, config: config}, nil
 }
 

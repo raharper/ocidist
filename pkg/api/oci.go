@@ -10,24 +10,25 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/raharper/ocidist/pkg/types"
+
 	dspec "github.com/opencontainers/distribution-spec/specs-go/v1"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/opencontainers/umoci"
+	log "github.com/sirupsen/logrus"
 )
 
 type OCIDirRepo struct {
 	url    *url.URL
-	config *OCIAPIConfig
+	config *types.OCIAPIConfig
 }
 
-func NewOCIDirRepo(url *url.URL, config *OCIAPIConfig) (*OCIDirRepo, error) {
+func NewOCIDirRepo(url *url.URL, config *types.OCIAPIConfig) (*OCIDirRepo, error) {
 	return &OCIDirRepo{url: url, config: config}, nil
 }
 
-func (odr *OCIDirRepo) Type() OCIRepoType {
-	return OCIDirRepoType
+func (odr *OCIDirRepo) Type() types.OCIRepoType {
+	return types.OCIDirRepoType
 }
 
 func (odr *OCIDirRepo) OCIDir() string {

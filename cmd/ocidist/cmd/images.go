@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/raharper/ocidist/pkg/api"
+	"github.com/raharper/ocidist/pkg/types"
 
 	"github.com/spf13/cobra"
 )
@@ -50,7 +51,7 @@ func doImages(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	config := &api.OCIAPIConfig{TLSVerify: tlsVerify}
+	config := &types.OCIAPIConfig{TLSVerify: tlsVerify}
 	ociApi, err := api.NewOCIAPI(rawURL, config)
 	if err != nil {
 		return err
