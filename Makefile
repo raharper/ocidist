@@ -1,5 +1,5 @@
 BINS := bin/ocidist
-TAGS := containers_image_openpgp
+TAGS := containers_image_openpgp -s -w
 
 .PHONY: all clean
 all: $(BINS)

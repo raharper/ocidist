@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -186,6 +187,70 @@ func (odr *OCIDirRepo) GetImage(config *ispec.Descriptor) (*ispec.Image, error) 
 
 	img := configBlob.Data.(ispec.Image)
 	return &img, nil
+}
+
+func (odr *OCIDirRepo) GetReferrers(image *ispec.Descriptor) (*ispec.Index, error) {
+	ociDir := odr.OCIDir()
+	oci, err := umoci.OpenLayout(ociDir)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to open OCI Layout at directory %q: %s", ociDir, err)
+	}
+
+	ociIndex, err := oci.GetIndex(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get index from OCI Layout at directory %q: %s", ociDir, err)
+	}
+
+	refs := ispec.Index{
+		MediaType: ispec.MediaTypeImageIndex,
+	}
+	for _, indexManifest := range ociIndex.Manifests {
+		if indexManifest.MediaType == ispec.MediaTypeImageManifest && indexManifest.Digest != image.Digest {
+
+			// get the blob @ manifest.Digest
+			// we can't use oci since it doesn't yet support "subject" descriptors
+			blob, err := odr.GetBlob(&indexManifest)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to read index manifest blob: %s", err)
+			}
+
+			var refManifest ispec.Manifest
+			if err := json.Unmarshal(blob, &refManifest); err != nil {
+				return nil, fmt.Errorf("Failed to unmarshal index manifest blob into manifest: %s", err)
+			}
+
+			if refManifest.Subject.Digest == image.Digest {
+				match := ispec.Descriptor{
+					ArtifactType: refManifest.ArtifactType,
+					MediaType:    indexManifest.MediaType,
+					Digest:       indexManifest.Digest,
+					Size:         indexManifest.Size,
+				}
+				refs.Manifests = append(refs.Manifests, match)
+			}
+		}
+	}
+
+	return &refs, nil
+}
+
+func (odr *OCIDirRepo) GetBlob(layer *ispec.Descriptor) ([]byte, error) {
+	ociDir := odr.OCIDir()
+
+	// fmt.Printf("GetBlob(%s)\n", layer.Digest.String())
+	algo, digest, ok := strings.Cut(layer.Digest.String(), ":")
+	if !ok {
+		return []byte{}, fmt.Errorf("Failed to split layer digest '%s' into algo and hash", layer.Digest.Encoded())
+	}
+
+	blobPath := filepath.Join(ociDir, "blobs", algo, digest)
+
+	blobBytes, err := ioutil.ReadFile(blobPath)
+	if err != nil {
+		return []byte{}, fmt.Errorf("Failed to read OCI layer blob @ %q: %s", blobPath, err)
+	}
+
+	return blobBytes, nil
 }
 
 func (odr *OCIDirRepo) GetRepositories() ([]string, error) {

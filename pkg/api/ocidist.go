@@ -141,7 +141,7 @@ func (odr *OCIDistRepo) GetManifest() (*ispec.Manifest, []byte, error) {
 	return &manifest, manifestBytes, nil
 }
 
-func (odr *OCIDistRepo) GetImage(config *ispec.Descriptor) (*ispec.Image, error) {
+func (odr *OCIDistRepo) GetImage(image *ispec.Descriptor) (*ispec.Image, error) {
 	url := odr.BasePath()
 	repoPath := odr.RepoPath()
 
@@ -151,9 +151,9 @@ func (odr *OCIDistRepo) GetImage(config *ispec.Descriptor) (*ispec.Image, error)
 	)
 
 	req := client.NewRequest(
-		reggie.GET, "/v2/<name>/blobs/<digest>",
+		reggie.GET, "/v2/<name>/referrers/<digest>",
 		reggie.WithName(repoPath),
-		reggie.WithDigest(string(config.Digest)))
+		reggie.WithDigest(string(image.Digest)))
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -165,6 +165,54 @@ func (odr *OCIDistRepo) GetImage(config *ispec.Descriptor) (*ispec.Image, error)
 	}
 
 	return &img, nil
+}
+
+func (odr *OCIDistRepo) GetReferrers(image *ispec.Descriptor) (*ispec.Index, error) {
+	url := odr.BasePath()
+	repoPath := odr.RepoPath()
+
+	client, err := reggie.NewClient(url,
+		reggie.WithUserAgent(UserAgent),
+		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
+	)
+
+	req := client.NewRequest(
+		reggie.GET, "/v2/<name>/referrers/<digest>",
+		reggie.WithName(repoPath),
+		reggie.WithDigest(string(image.Digest)))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	var index ispec.Index
+	if err := json.Unmarshal([]byte(resp.Body()), &index); err != nil {
+		return nil, err
+	}
+
+	return &index, nil
+}
+
+func (odr *OCIDistRepo) GetBlob(layer *ispec.Descriptor) ([]byte, error) {
+	url := odr.BasePath()
+	repoPath := odr.RepoPath()
+
+	client, err := reggie.NewClient(url,
+		reggie.WithUserAgent(UserAgent),
+		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
+	)
+
+	req := client.NewRequest(
+		reggie.GET, "/v2/<name>/blobs/<digest>",
+		reggie.WithName(repoPath),
+		reggie.WithDigest(string(layer.Digest)))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return resp.Body(), nil
 }
 
 func (odr *OCIDistRepo) GetRepositories() ([]string, error) {
