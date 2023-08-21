@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,8 @@ var reposCmd = &cobra.Command{
 	Long: `
 $ ocidist repos ocidist://localhost:5000
 `,
-	RunE: doRepos,
+	RunE:    doRepos,
+	PreRunE: doBeforeRunCmd,
 }
 
 func doRepos(cmd *cobra.Command, args []string) error {
@@ -61,5 +62,6 @@ func doRepos(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(reposCmd)
+	reposCmd.PersistentFlags().BoolP("debug", "d", false, "enable debug output")
 	reposCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
 }

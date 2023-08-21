@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,8 @@ $ ocidist images ocidist://localhost:5000/myrepo/myimage
 myimage:v1
 myimage:v2
 `,
-	RunE: doImages,
+	RunE:    doImages,
+	PreRunE: doBeforeRunCmd,
 }
 
 func doImages(cmd *cobra.Command, args []string) error {
@@ -79,6 +80,7 @@ func doImages(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(imagesCmd)
+	imagesCmd.PersistentFlags().BoolP("debug", "d", false, "enable debug output")
 	imagesCmd.PersistentFlags().BoolP("tags-only", "t", false, "print image tags only")
 	imagesCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
 }

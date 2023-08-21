@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,7 +44,8 @@ $ ocidist inspect ocidist://localhost:5000/myrepo/myimage:v2.1
   ],
   ...
 }`,
-	RunE: doInspect,
+	RunE:    doInspect,
+	PreRunE: doBeforeRunCmd,
 }
 
 // github.com/containers/skopeo/cmd/skopeo/inspect/output.go:Output
@@ -141,6 +142,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(inspectCmd)
+	inspectCmd.PersistentFlags().BoolP("debug", "d", false, "enable debug output")
 	inspectCmd.PersistentFlags().BoolP("config", "c", false, "output configuration")
 	inspectCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
 	inspectCmd.PersistentFlags().BoolP("raw", "r", false, "output raw manifest or configuration")

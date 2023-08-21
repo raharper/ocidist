@@ -29,9 +29,10 @@ var sociCmd = &cobra.Command{
 }
 
 var sociInspectCmd = &cobra.Command{
-	Use:   "inspect <URI>",
-	Short: "inspect a Signed OCI (soci) image",
-	RunE:  runSociInspect,
+	Use:     "inspect <URI>",
+	Short:   "inspect a Signed OCI (soci) image",
+	RunE:    runSociInspect,
+	PreRunE: doBeforeRunCmd,
 }
 
 var sociGetCmd = &cobra.Command{
@@ -45,7 +46,8 @@ $ ocidist soci get ocidist://localhost:5000/product/services/svc:v1.2
  "signature": {},
 }
 `,
-	RunE: runSociGet,
+	RunE:    runSociGet,
+	PreRunE: doBeforeRunCmd,
 }
 
 func runSociInspect(cmd *cobra.Command, args []string) error {
@@ -132,6 +134,7 @@ func init() {
 	sociInspectCmd.PersistentFlags().StringP("ca-file", "c", "", "verify soci cert is issued from specified CA and still valid")
 
 	sociCmd.PersistentFlags().BoolP("tls-verify", "T", true, "toggle tls verification")
+	sociCmd.PersistentFlags().BoolP("debug", "d", false, "enable debug output")
 
 	sociCmd.AddCommand(sociInspectCmd)
 	sociCmd.AddCommand(sociGetCmd)
