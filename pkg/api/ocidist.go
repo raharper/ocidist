@@ -154,7 +154,7 @@ func (odr *OCIDistRepo) GetImage(image *ispec.Descriptor) (*ispec.Image, error) 
 	)
 
 	req := client.NewRequest(
-		reggie.GET, "/v2/<name>/referrers/<digest>",
+		reggie.GET, "/v2/<name>/blobs/<digest>",
 		reggie.WithName(repoPath),
 		reggie.WithDigest(string(image.Digest)))
 
