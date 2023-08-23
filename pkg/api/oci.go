@@ -253,6 +253,22 @@ func (odr *OCIDirRepo) GetBlob(layer *ispec.Descriptor) ([]byte, error) {
 	return blobBytes, nil
 }
 
+func (odr *OCIDirRepo) BlobHead(layer *ispec.Descriptor) error {
+	return fmt.Errorf("Not implemented yet")
+}
+
 func (odr *OCIDirRepo) GetRepositories() ([]string, error) {
 	return []string{odr.OCIDir()}, nil
+}
+
+func (odr *OCIDirRepo) PutBlob(layer *ispec.Descriptor, blob []byte) error {
+	return fmt.Errorf("Not implemented yet")
+}
+
+func (odr *OCIDirRepo) PutManifest(manifest *ispec.Manifest) error {
+	return fmt.Errorf("Not implemented yet")
+}
+
+func (odr *OCIDirRepo) PutArtifact(aritfactName, artifactType string, artifactBlob []byte) error {
+	return fmt.Errorf("Not implemented yet")
 }

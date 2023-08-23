@@ -90,6 +90,7 @@ func doInspect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// FIXME; use GetManifestWithDigest()
 	manifest, manifestBytes, err := ociApi.GetManifest()
 	if err != nil {
 		return err

@@ -30,6 +30,10 @@ type OCIAPI interface {
 	GetReferrers(*ispec.Descriptor) (*ispec.Index, error)
 	GetBlob(*ispec.Descriptor) ([]byte, error)
 
+	PutBlob(*ispec.Descriptor, []byte) error
+	PutManifest(*ispec.Manifest) error
+	PutArtifact(artifactName, artifactType string, artifactBlob []byte) error
+
 	ImageName() string
 	SourceURL() string
 	RepoPath() string
