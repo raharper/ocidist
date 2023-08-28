@@ -572,8 +572,6 @@ func (odr *OCIDistRepo) PutArtifact(artifactName, artifactType string, artifactB
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Manifest JSON:\n")
-	fmt.Printf("%s\n", content)
 
 	log.WithFields(log.Fields{
 		"manifest.Config.Digest": manifest.Config.Digest.String(),
