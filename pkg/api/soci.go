@@ -21,7 +21,7 @@ const (
 	SOCIArtifactSignature = "signature"
 )
 
-func sociArtifactType(product, artifactType string) (string, error) {
+func SOCIArtifactType(product, artifactType string) (string, error) {
 	switch artifactType {
 	case SOCIArtifactInstall, SOCIArtifactPubKeyCrt, SOCIArtifactSignature:
 		return fmt.Sprintf("application/vnd.%s.%s", product, artifactType), nil
@@ -57,6 +57,18 @@ type SOCIArtifacts struct {
 	Signature Signature `json:"signature"`
 }
 
+func (sa SOCIArtifacts) SignatureBlob() ([]byte, error) {
+	if sa.Signature.Encoding != "base64" {
+		return []byte{}, fmt.Errorf("Unsupported signature encoding '%s'", sa.Signature.Encoding)
+	}
+	sigBlob, err := base64.StdEncoding.DecodeString(sa.Signature.Data)
+	if err != nil {
+		return []byte{}, fmt.Errorf("Error decoding base64 signature data: %s", err)
+	}
+
+	return sigBlob, nil
+}
+
 func NewSOCIRef(ociApi OCIAPI) (SOCIRef, error) {
 	rawURL := ociApi.SourceURL()
 
@@ -77,9 +89,9 @@ func NewSOCIRef(ociApi OCIAPI) (SOCIRef, error) {
 	}
 
 	// confirm artifactType is atomix.install
-	atxSociInst, err := sociArtifactType("atomix", SOCIArtifactInstall)
+	atxSociInst, err := SOCIArtifactType("atomix", SOCIArtifactInstall)
 	if err != nil {
-		return SOCIRef{}, fmt.Errorf("Failed composing sociArtifactType: %s", err)
+		return SOCIRef{}, fmt.Errorf("Failed composing SOCIArtifactType: %s", err)
 	}
 	if manifest.ArtifactType != atxSociInst {
 		return SOCIRef{}, fmt.Errorf("%s does not point to a valid SOCI image, found artifactType '%s' expected '%s'", rawURL, manifest.ArtifactType, atxSociInst)
@@ -105,13 +117,13 @@ func NewSOCIRef(ociApi OCIAPI) (SOCIRef, error) {
 	}
 
 	// collect soci artifact refs
-	atxSociCert, err := sociArtifactType("atomix", SOCIArtifactPubKeyCrt)
+	atxSociCert, err := SOCIArtifactType("atomix", SOCIArtifactPubKeyCrt)
 	if err != nil {
-		return SOCIRef{}, fmt.Errorf("Failed composing sociArtifactType: %s", err)
+		return SOCIRef{}, fmt.Errorf("Failed composing SOCIArtifactType: %s", err)
 	}
-	atxSociSig, err := sociArtifactType("atomix", SOCIArtifactSignature)
+	atxSociSig, err := SOCIArtifactType("atomix", SOCIArtifactSignature)
 	if err != nil {
-		return SOCIRef{}, fmt.Errorf("Failed coposing sociArtifactType: %s", err)
+		return SOCIRef{}, fmt.Errorf("Failed coposing SOCIArtifactType: %s", err)
 	}
 	for _, ref := range referrers.Manifests {
 		switch ref.ArtifactType {
@@ -171,18 +183,18 @@ func (sref SOCIRef) GetArtifacts() (SOCIArtifacts, error) {
 		return SOCIArtifacts{}, err
 	}
 
-	sig := Signature{
-		Encoding: "base64",
-		Data:     base64.StdEncoding.EncodeToString(signature),
-	}
+	return NewSOCIArtifacts(install, pubkeycrt, signature)
+}
 
-	artifacts := SOCIArtifacts{
+func NewSOCIArtifacts(install, pubkeycrt, sig []byte) (SOCIArtifacts, error) {
+	return SOCIArtifacts{
 		Install:   string(install),
 		PubKeyCrt: string(pubkeycrt),
-		Signature: sig,
-	}
-
-	return artifacts, nil
+		Signature: Signature{
+			Encoding: "base64",
+			Data:     base64.StdEncoding.EncodeToString(sig),
+		},
+	}, nil
 }
 
 func (sref SOCIRef) Verify(caFile string) (bool, string, error) {
