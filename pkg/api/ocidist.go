@@ -82,7 +82,7 @@ func (odr *OCIDistRepo) GetRepoTagList() (*dspec.TagList, error) {
 	repoPath := odr.RepoPath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -121,7 +121,7 @@ func (odr *OCIDistRepo) GetManifest() (*ispec.Manifest, []byte, error) {
 		"tag":      tag,
 	}).Debug("OCIDist.GetManifest() creating new Client")
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -161,7 +161,7 @@ func (odr *OCIDistRepo) ManifestHead() error {
 	tag := odr.RepoTag()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 		reggie.WithDefaultName(repoPath),
@@ -212,7 +212,7 @@ func (odr *OCIDistRepo) PutManifest(manifest *ispec.Manifest) error {
 	ref := tag
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithDefaultName(repoPath),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
@@ -284,7 +284,7 @@ func (odr *OCIDistRepo) GetImage(image *ispec.Descriptor) (*ispec.Image, error) 
 	repoPath := odr.RepoPath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -311,7 +311,7 @@ func (odr *OCIDistRepo) GetReferrers(image *ispec.Descriptor) (*ispec.Index, err
 	repoPath := odr.RepoPath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -344,7 +344,7 @@ func (odr *OCIDistRepo) GetBlob(layer *ispec.Descriptor) ([]byte, error) {
 	repoPath := odr.RepoPath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -367,7 +367,7 @@ func (odr *OCIDistRepo) BlobHead(layer *ispec.Descriptor) error {
 	repoPath := odr.RepoPath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -405,7 +405,7 @@ func (odr *OCIDistRepo) GetRepositories() ([]string, error) {
 	url := odr.BasePath()
 
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 	)
@@ -441,7 +441,7 @@ func (odr *OCIDistRepo) PutBlob(layer *ispec.Descriptor, blob []byte) error {
 	url := odr.BasePath()
 	repoPath := odr.RepoPath()
 	client, err := reggie.NewClient(url,
-		reggie.WithDebug(true),
+		reggie.WithDebug(odr.config.Debug),
 		reggie.WithUserAgent(UserAgent),
 		reggie.WithInsecureSkipTLSVerify(!odr.config.TLSVerify), // skip TLS verification
 		reggie.WithDefaultName(repoPath),

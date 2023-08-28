@@ -42,6 +42,7 @@ type OCIAPI interface {
 
 type OCIAPIConfig struct {
 	TLSVerify bool
+	Debug     bool
 }
 
 func NewOCIAPI(rawURL string, config *OCIAPIConfig) (OCIAPI, error) {
