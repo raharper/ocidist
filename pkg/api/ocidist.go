@@ -568,11 +568,6 @@ func (odr *OCIDistRepo) PutArtifact(artifactName, artifactType string, artifactB
 		log.Debugf("OCIDist.PutArtifact() no manifest created yet, skipping subject referrers")
 	}
 
-	content, err := json.MarshalIndent(manifest, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-
 	log.WithFields(log.Fields{
 		"manifest.Config.Digest": manifest.Config.Digest.String(),
 	}).Debug("OCIDist.PutArtifact() created manifest, calling Put Manifest")
