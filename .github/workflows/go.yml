@@ -1,0 +1,36 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build_test_amd64:
+    name: Build on ubuntu-latest amd64
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get install make
+        wget -q https://go.dev/dl/go1.21.0.linux-amd64.tar.gz -O go.tar.gz
+        sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go.tar.gz
+        export PATH=/usr/local/go/bin:$PATH
+        go version
+
+    - name: Make ocidist binaries
+      run: |
+        export PATH=/usr/local/go/bin:$PATH
+        mkdir -p $GOPATH
+        echo GOPATH=$GOPATH PATH=$PATH
+        go version
+        make
+      env:
+          GOPATH: /home/runner/go
