@@ -9,3 +9,6 @@ clean:
 
 bin/ocidist: cmd/ocidist/*.go cmd/ocidist/cmd/*.go pkg/*/*.go
 	go build -tags "$(TAGS)" -o $@ cmd/ocidist/*.go
+
+update-api-docs:
+	(cd pkg/api; gomarkdoc -o README.md)
