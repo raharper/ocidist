@@ -219,6 +219,10 @@ func (odr *OCIDirRepo) GetReferrers(image *ispec.Descriptor) (*ispec.Index, erro
 				return nil, fmt.Errorf("Failed to unmarshal index manifest blob into manifest: %s", err)
 			}
 
+			if refManifest.Subject == nil {
+				continue
+			}
+
 			if refManifest.Subject.Digest == image.Digest {
 				match := ispec.Descriptor{
 					ArtifactType: refManifest.ArtifactType,
