@@ -39,6 +39,10 @@ func NewOCIDistRepo(url *url.URL, config *OCIAPIConfig) (*OCIDistRepo, error) {
 }
 
 func (odr *OCIDistRepo) BasePath() string {
+	if odr.url.Host == "" {
+		return ""
+	}
+
 	scheme := odr.url.Scheme
 	switch odr.url.Scheme {
 	case "ocidist", "docker":
@@ -47,7 +51,12 @@ func (odr *OCIDistRepo) BasePath() string {
 	if odr.config.TLSVerify {
 		scheme += "s"
 	}
-	return fmt.Sprintf("%s://%s", scheme, odr.url.Host)
+	newURL := &url.URL{
+		Scheme: scheme,
+		User:   odr.url.User,
+		Host:   odr.url.Host,
+	}
+	return newURL.String()
 }
 
 func (odr *OCIDistRepo) RepoPath() string {

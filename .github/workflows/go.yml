@@ -17,15 +17,25 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install build dependencies
+    - name: Install build and test dependencies
       run: |
-        sudo apt-get install make
+        sudo apt-get install make libgpgme-dev
         wget -q https://go.dev/dl/go1.21.0.linux-amd64.tar.gz -O go.tar.gz
         sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go.tar.gz
         export PATH=/usr/local/go/bin:$PATH
         go version
 
-    - name: Make ocidist binaries
+    - name: Download go modules
+      run: |
+        export PATH=/usr/local/go/bin:$PATH
+        mkdir -p $GOPATH
+        echo GOPATH=$GOPATH PATH=$PATH
+        go version
+        make go-download
+      env:
+          GOPATH: /home/runner/go
+
+    - name: Test and Make ocidist binaries
       run: |
         export PATH=/usr/local/go/bin:$PATH
         mkdir -p $GOPATH
